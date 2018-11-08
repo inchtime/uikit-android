@@ -1,0 +1,9 @@
+<resources>
+    <declare-styleable name="UIView">
+        <attr name="clipRadius" format="dimension" />
+        <attr name="clipToOutline" format="boolean" />
+    </declare-styleable>
+    <declare-styleable name="UIImageView">
+        <attr name="radius" format="dimension" />
+    </declare-styleable>
+</resources>
