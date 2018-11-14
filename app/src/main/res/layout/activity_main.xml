@@ -7,49 +7,26 @@
         android:layout_height="match_parent"
         tools:context=".MainActivity">
 
-    <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Hello World!"
-            android:elevation="30dp"
-            android:outlineProvider="background"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="parent"/>
-
-
-    <io.inchtime.uikit.UIView
-            android:layout_marginStart="100dp"
-            android:layout_marginTop="180dp"
-            android:elevation="10dp"
+    <io.inchtime.uikit.UIImageView
+            android:src="@drawable/recyclerkit"
+            android:layout_marginStart="150dp"
+            android:layout_marginTop="250dp"
+            android:elevation="9dp"
             android:layout_width="100dp"
             android:layout_height="100dp"
-            app:clipToOutline="true"
-            app:clipRadius="50dp"
-            android:background="@color/colorPrimary"
+            app:cornerRadius="50dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"/>
 
     <io.inchtime.uikit.UIImageView
             android:src="@drawable/recyclerkit"
-            android:layout_marginStart="180dp"
-            android:layout_marginTop="280dp"
+            android:layout_marginStart="150dp"
+            android:layout_marginTop="400dp"
             android:elevation="9dp"
             android:layout_width="100dp"
             android:layout_height="100dp"
-            app:radius="10dp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"/>
-
-    <io.inchtime.uikit.UIImageView
-            app:radius="25dp"
-            android:src="@drawable/recyclerkit"
-            android:layout_marginStart="180dp"
-            android:layout_marginTop="380dp"
-            android:elevation="9dp"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
+            app:cornerRadius="50dp"
+            app:roundedCorners="all"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"/>
 
