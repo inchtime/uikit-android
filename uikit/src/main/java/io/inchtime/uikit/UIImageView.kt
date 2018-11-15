@@ -5,6 +5,9 @@ import android.graphics.*
 import android.graphics.drawable.BitmapDrawable
 import android.support.v7.widget.AppCompatImageView
 import android.util.AttributeSet
+import android.graphics.PorterDuff
+import android.graphics.PorterDuffXfermode
+
 
 class UIImageView constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) :
     AppCompatImageView(context, attrs, defStyleAttr) {
@@ -23,23 +26,22 @@ class UIImageView constructor(context: Context, attrs: AttributeSet?, defStyleAt
     private var cornerRect = RectF()
     private var cornerRadius = 0f
     private var roundedCorners: Int = CORNER_TOP_LEFT
-    private var size: Float = 0.0f
+    private var w: Float = 0.0f
+    private var h: Float = 0.0f
     private val path = Path()
-    private val paint = Paint()
+    private val bitmapPaint = Paint()
     private val localMatrix = Matrix()
     private val mode = PorterDuffXfermode(PorterDuff.Mode.SRC_IN)
 
     init {
 
-        setLayerType(LAYER_TYPE_SOFTWARE, null)
-
-        paint.isAntiAlias = true
+        bitmapPaint.isAntiAlias = true
 
         val styleAttrs = context.obtainStyledAttributes(attrs, R.styleable.UIImageView)
 
         cornerRadius = styleAttrs.getDimension(R.styleable.UIImageView_cornerRadius, 0f)
 
-        roundedCorners = styleAttrs.getInt(R.styleable.UIImageView_roundedCorners, CORNER_NONE)
+        roundedCorners = styleAttrs.getInt(R.styleable.UIImageView_roundedCorners, CORNER_ALL)
 
 //        clipToOutline = styleAttrs.getBoolean(R.styleable.UIImageView_clipToOutline, false)
 //        clipRadius = styleAttrs.getDimension(R.styleable.UIImageView_clipRadius, 0.0f)
@@ -62,36 +64,61 @@ class UIImageView constructor(context: Context, attrs: AttributeSet?, defStyleAt
         setPath()
     }
 
+    private var bitmapOriginal: Bitmap? = null
+    private var canvasOriginal: Canvas? = null
+    private var bitmapTarget: Bitmap? = null
+    private var canvasTarget: Canvas? = null
+
     override fun onDraw(canvas: Canvas) {
+
         if (!path.isEmpty) {
-            val left = 0f
-            val top = 0f
-            val right = size
-            val bottom = size
-            paint.shader = bitmapShader()
-            canvas.drawPath(path, paint)
-            // for anti alias
-            paint.xfermode = mode
-            canvas.drawRect(left, top, right, bottom, paint)
-        } else {
+
+            if (bitmapOriginal == null || canvasOriginal == null) {
+                bitmapOriginal = Bitmap.createBitmap(w.toInt(), h.toInt(), Bitmap.Config.ARGB_8888)
+                bitmapOriginal?.setHasAlpha(true)
+                canvasOriginal = Canvas(bitmapOriginal!!)
+            }
+
+            super.onDraw(canvasOriginal)
+
+            if (bitmapTarget == null || canvasTarget == null) {
+                bitmapTarget = Bitmap.createBitmap(w.toInt(), h.toInt(), Bitmap.Config.ARGB_8888)
+                bitmapTarget?.setHasAlpha(true)
+                canvasTarget = Canvas(bitmapTarget!!)
+            }
+
+            bitmapPaint.color = Color.WHITE
+            canvasTarget?.drawPath(path, bitmapPaint)
+
+            val sc = canvas.saveLayer(0f, 0f, w, h, null, Canvas.ALL_SAVE_FLAG)
+
+            canvas.drawBitmap(bitmapTarget!!, 0f, 0f, bitmapPaint)
+            bitmapPaint.xfermode = mode
+            canvas.drawBitmap(bitmapOriginal!!, 0f, 0f, bitmapPaint)
+            bitmapPaint.xfermode = null
+            bitmapPaint.reset()
+            canvas.restoreToCount(sc)
+        }
+        else {
             super.onDraw(canvas)
         }
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
-        size = Math.min(measuredWidth.toFloat(), measuredHeight.toFloat())
+        w = measuredWidth.toFloat()
+        h = measuredHeight.toFloat()
     }
 
-    private fun bitmapShader(): BitmapShader {
-        val bitmap = (drawable as BitmapDrawable).bitmap
-        val bitmapShader = BitmapShader(bitmap, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP)
-        val scale = size / Math.min(bitmap.height, bitmap.width)
-        localMatrix.setScale(scale, scale)
-        bitmapShader.setLocalMatrix(localMatrix)
-        return bitmapShader
-    }
-
+//    private fun bitmapShader(): BitmapShader {
+//        val bitmap = (drawable as BitmapDrawable).bitmap
+//        val bitmapShader = BitmapShader(bitmap, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP)
+//        val scaleX = w / bitmap.width
+//        val scaleY = h / bitmap.height
+//        localMatrix.setScale(scaleX, scaleY)
+//        bitmapShader.setLocalMatrix(localMatrix)
+//        return bitmapShader
+//    }
 
     private fun setPath() {
 
@@ -133,11 +160,16 @@ class UIImageView constructor(context: Context, attrs: AttributeSet?, defStyleAt
 
             path.close()
         }
+
     }
 
     private fun isRounded(corner: Int): Boolean {
         return (roundedCorners and corner) == corner
     }
 
+    override fun drawableStateChanged() {
+        super.drawableStateChanged()
+        invalidate()
+    }
 
 }
