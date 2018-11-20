@@ -7,10 +7,10 @@
         android:layout_height="match_parent"
         tools:context=".MainActivity">
 
-    <io.inchtime.uikit.UIImageView
+    <io.inchtime.uikit.view.UIImageView
             android:id="@+id/image"
-            android:layout_marginStart="150dp"
-            android:layout_marginTop="250dp"
+            android:layout_marginStart="50dp"
+            android:layout_marginTop="50dp"
             android:layout_width="40dp"
             android:layout_height="40dp"
             app:cornerRadius="20dp"
@@ -18,13 +18,14 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"/>
 
-    <io.inchtime.uikit.UIImageView
-            android:src="@drawable/recyclerkit"
-            android:layout_marginStart="150dp"
-            android:layout_marginTop="400dp"
+    <io.inchtime.uikit.view.UIImageView
+            android:src="@drawable/common_check"
+            android:layout_marginStart="50dp"
+            android:layout_marginTop="150dp"
             android:elevation="9dp"
             android:layout_width="100dp"
             android:layout_height="100dp"
+            android:tint="@color/colorAccent"
             app:cornerRadius="50dp"
             app:roundedCorners="all"
             app:layout_constraintStart_toStartOf="parent"

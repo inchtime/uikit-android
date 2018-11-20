@@ -11,11 +11,12 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-//        http://oss.beefintech.net/LOGO/COMPANY/%E5%8F%8B%E9%82%A6%403x.png
-
+//        https://oss.beefintech.net/LOGO/COMPANY/%E5%8F%8B%E9%82%A6%403x.png
+//        https://beefintech-test.oss-cn-shenzhen.aliyuncs.com/USER_FILE/5/88144-avatar-20181114192326.jpg
         GlideApp.with(this)
             .load("https://oss.beefintech.net/LOGO/COMPANY/%E5%8F%8B%E9%82%A6%403x.png")
-            .placeholder(R.drawable.recyclerkit)
+            .apply(RequestOptions.fitCenterTransform())
+            .placeholder(R.drawable.placeholder)
             .into(image)
 
     }

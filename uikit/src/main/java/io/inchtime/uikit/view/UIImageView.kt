@@ -1,12 +1,18 @@
-package io.inchtime.uikit
+package io.inchtime.uikit.view
 
 import android.content.Context
 import android.graphics.*
-import android.graphics.drawable.BitmapDrawable
 import android.support.v7.widget.AppCompatImageView
 import android.util.AttributeSet
 import android.graphics.PorterDuff
 import android.graphics.PorterDuffXfermode
+import android.os.Build
+import io.inchtime.uikit.R
+import android.R.attr.src
+import android.graphics.Bitmap
+import android.opengl.ETC1.getHeight
+import android.opengl.ETC1.getWidth
+
 
 
 class UIImageView constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) :
@@ -16,12 +22,14 @@ class UIImageView constructor(context: Context, attrs: AttributeSet?, defStyleAt
 
     constructor(context: Context) : this(context, null)
 
-    private val CORNER_NONE = 0
-    private val CORNER_TOP_LEFT = 1
-    private val CORNER_TOP_RIGHT = 2
-    private val CORNER_BOTTOM_RIGHT = 4
-    private val CORNER_BOTTOM_LEFT = 8
-    private val CORNER_ALL = 15
+    companion object {
+        const val CORNER_NONE = 0
+        const val CORNER_TOP_LEFT = 1
+        const val CORNER_TOP_RIGHT = 2
+        const val CORNER_BOTTOM_RIGHT = 4
+        const val CORNER_BOTTOM_LEFT = 8
+        const val CORNER_ALL = 15
+    }
 
     private var cornerRect = RectF()
     private var cornerRadius = 0f
@@ -30,18 +38,22 @@ class UIImageView constructor(context: Context, attrs: AttributeSet?, defStyleAt
     private var h: Float = 0.0f
     private val path = Path()
     private val bitmapPaint = Paint()
-    private val localMatrix = Matrix()
+//    private val localMatrix = Matrix()
     private val mode = PorterDuffXfermode(PorterDuff.Mode.SRC_IN)
 
     init {
 
         bitmapPaint.isAntiAlias = true
+        bitmapPaint.color = Color.WHITE
 
         val styleAttrs = context.obtainStyledAttributes(attrs, R.styleable.UIImageView)
 
         cornerRadius = styleAttrs.getDimension(R.styleable.UIImageView_cornerRadius, 0f)
 
-        roundedCorners = styleAttrs.getInt(R.styleable.UIImageView_roundedCorners, CORNER_ALL)
+        roundedCorners = styleAttrs.getInt(
+            R.styleable.UIImageView_roundedCorners,
+            CORNER_ALL
+        )
 
 //        clipToOutline = styleAttrs.getBoolean(R.styleable.UIImageView_clipToOutline, false)
 //        clipRadius = styleAttrs.getDimension(R.styleable.UIImageView_clipRadius, 0.0f)
@@ -64,37 +76,45 @@ class UIImageView constructor(context: Context, attrs: AttributeSet?, defStyleAt
         setPath()
     }
 
-    private var bitmapOriginal: Bitmap? = null
-    private var canvasOriginal: Canvas? = null
-    private var bitmapTarget: Bitmap? = null
-    private var canvasTarget: Canvas? = null
+    private var bitmapSrc: Bitmap? = null
+    private var canvasSrc: Canvas? = null
+    private var bitmapDest: Bitmap? = null
+    private var canvasDest: Canvas? = null
 
     override fun onDraw(canvas: Canvas) {
 
         if (!path.isEmpty) {
 
-            if (bitmapOriginal == null || canvasOriginal == null) {
-                bitmapOriginal = Bitmap.createBitmap(w.toInt(), h.toInt(), Bitmap.Config.ARGB_8888)
-                bitmapOriginal?.setHasAlpha(true)
-                canvasOriginal = Canvas(bitmapOriginal!!)
-            }
-
-            super.onDraw(canvasOriginal)
-
-            if (bitmapTarget == null || canvasTarget == null) {
-                bitmapTarget = Bitmap.createBitmap(w.toInt(), h.toInt(), Bitmap.Config.ARGB_8888)
-                bitmapTarget?.setHasAlpha(true)
-                canvasTarget = Canvas(bitmapTarget!!)
-            }
-
             bitmapPaint.color = Color.WHITE
-            canvasTarget?.drawPath(path, bitmapPaint)
+            // src
+            if (bitmapSrc == null || canvasSrc == null) {
+                bitmapSrc = Bitmap.createBitmap(w.toInt(), h.toInt(), Bitmap.Config.ARGB_8888)
+                bitmapSrc?.setHasAlpha(true)
+                canvasSrc = Canvas(bitmapSrc!!)
+            }
+            canvasSrc?.drawRect(0f, 0f, w, h, bitmapPaint)
+            super.onDraw(canvasSrc)
+//            bitmapSrc = eraseColor(bitmapSrc!!, Color.WHITE)
+//            bitmapSrc = eraseColor(bitmapSrc!!, -16777216)
 
-            val sc = canvas.saveLayer(0f, 0f, w, h, null, Canvas.ALL_SAVE_FLAG)
+            // dest
+            if (bitmapDest == null || canvasDest == null) {
+                bitmapDest = Bitmap.createBitmap(w.toInt(), h.toInt(), Bitmap.Config.ARGB_8888)
+                bitmapDest?.setHasAlpha(true)
+                canvasDest = Canvas(bitmapDest!!)
+            }
 
-            canvas.drawBitmap(bitmapTarget!!, 0f, 0f, bitmapPaint)
+            canvasDest?.drawPath(path, bitmapPaint)
+
+            val sc = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                canvas.saveLayer(0f, 0f, w, h, null)
+            } else {
+                canvas.saveLayer(0f, 0f, w, h, null, Canvas.ALL_SAVE_FLAG)
+            }
+
+            canvas.drawBitmap(bitmapDest!!, 0f, 0f, bitmapPaint)
             bitmapPaint.xfermode = mode
-            canvas.drawBitmap(bitmapOriginal!!, 0f, 0f, bitmapPaint)
+            canvas.drawBitmap(bitmapSrc!!, 0f, 0f, bitmapPaint)
             bitmapPaint.xfermode = null
             bitmapPaint.reset()
             canvas.restoreToCount(sc)
@@ -108,6 +128,23 @@ class UIImageView constructor(context: Context, attrs: AttributeSet?, defStyleAt
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
         w = measuredWidth.toFloat()
         h = measuredHeight.toFloat()
+    }
+
+    private fun eraseColor(src: Bitmap, color: Int): Bitmap {
+        val width = src.width
+        val height = src.height
+        val bitmap = src.copy(Bitmap.Config.ARGB_8888, true)
+        bitmap.setHasAlpha(true)
+        val pixels = IntArray(width * height)
+        src.getPixels(pixels, 0, width, 0, 0, width, height)
+        src.recycle()
+        for (i in 0 until width * height) {
+            if (pixels[i] == color) {
+                pixels[i] = 0
+            }
+        }
+        bitmap.setPixels(pixels, 0, width, 0, 0, width, height)
+        return bitmap
     }
 
 //    private fun bitmapShader(): BitmapShader {

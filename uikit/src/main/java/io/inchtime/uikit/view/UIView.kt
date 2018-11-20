@@ -1,8 +1,9 @@
-package io.inchtime.uikit
+package io.inchtime.uikit.view
 
 import android.content.Context
 import android.util.AttributeSet
 import android.view.View
+import io.inchtime.uikit.R
 
 open class UIView constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int): View(context, attrs, defStyleAttr) {
 
