@@ -11,7 +11,7 @@ Gradle:
 
 ```gradle
 dependencies {
-    implementation 'io.inchtime:uikit:0.4.0'
+    implementation 'io.inchtime:uikit:0.5.0'
 }
 ```
 
@@ -21,7 +21,7 @@ Maven:
 <dependency>
   <groupId>io.inchtime</groupId>
   <artifactId>uikit</artifactId>
-  <version>0.4.0</version>
+  <version>0.5.0</version>
   <type>pom</type>
 </dependency>
 ```

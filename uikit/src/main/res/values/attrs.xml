@@ -3,6 +3,7 @@
     <!--<attr name="clipRadius" format="dimension"/>-->
     <!--<attr name="clipToOutline" format="boolean"/>-->
     <!--<attr name="clipOutlineAlpha" format="fraction"/>-->
+    <attr name="cornerRadius" format="dimension"/>
 
     <declare-styleable name="UIView">
         <!--<attr name="clipRadius"/>-->
@@ -14,14 +15,22 @@
         <!--<attr name="clipRadius"/>-->
         <!--<attr name="clipOutlineAlpha"/>-->
         <!--<attr name="clipToOutline"/>-->
-        <attr name="cornerRadius" format="dimension" />
+        <attr name="cornerRadius"/>
         <attr name="roundedCorners">
-            <flag name="topLeft" value="1" />
-            <flag name="topRight" value="2" />
-            <flag name="bottomRight" value="4" />
-            <flag name="bottomLeft" value="8" />
-            <flag name="all" value="15" />
+            <flag name="topLeft" value="1"/>
+            <flag name="topRight" value="2"/>
+            <flag name="bottomRight" value="4"/>
+            <flag name="bottomLeft" value="8"/>
+            <flag name="all" value="15"/>
         </attr>
+    </declare-styleable>
+
+    <declare-styleable name="ShadowLayout">
+        <attr name="cornerRadius"/>
+        <attr name="shadowRadius" format="dimension"/>
+        <attr name="shadowColor" format="color"/>
+        <attr name="shadowDx" format="dimension"/>
+        <attr name="shadowDy" format="dimension"/>
     </declare-styleable>
 
 </resources>

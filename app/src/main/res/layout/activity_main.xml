@@ -18,17 +18,32 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"/>
 
+
     <io.inchtime.uikit.view.UIImageView
-            android:src="@drawable/common_check"
+            android:src="@drawable/recyclerkit"
             android:layout_marginStart="50dp"
             android:layout_marginTop="150dp"
             android:elevation="9dp"
             android:layout_width="100dp"
             android:layout_height="100dp"
-            android:tint="@color/colorAccent"
             app:cornerRadius="50dp"
             app:roundedCorners="all"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"/>
+
+    <io.inchtime.uikit.layout.ShadowLayout
+            app:cornerRadius="20dp"
+            app:shadowRadius="5dp"
+            app:shadowColor="@color/colorShadow"
+            app:shadowDx="5dp"
+            app:shadowDy="5dp"
+            android:layout_width="200dp"
+            android:layout_height="200dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginTop="300dp"
+            android:layout_marginStart="50dp">
+
+    </io.inchtime.uikit.layout.ShadowLayout>
 
 </android.support.constraint.ConstraintLayout>

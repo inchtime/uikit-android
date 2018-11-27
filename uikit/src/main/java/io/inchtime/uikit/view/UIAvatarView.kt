@@ -2,10 +2,9 @@ package io.inchtime.uikit.view
 
 import android.content.Context
 import android.graphics.*
+import android.os.Build
 import android.support.v7.widget.AppCompatImageView
 import android.util.AttributeSet
-import android.graphics.PorterDuff
-import android.graphics.PorterDuffXfermode
 import io.inchtime.uikit.R
 
 class UIAvatarView constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) :
@@ -15,12 +14,18 @@ class UIAvatarView constructor(context: Context, attrs: AttributeSet?, defStyleA
 
     constructor(context: Context) : this(context, null)
 
-    private val CORNER_NONE = 0
-    private val CORNER_TOP_LEFT = 1
-    private val CORNER_TOP_RIGHT = 2
-    private val CORNER_BOTTOM_RIGHT = 4
-    private val CORNER_BOTTOM_LEFT = 8
-    private val CORNER_ALL = 15
+    companion object {
+        const val CORNER_NONE = 0
+        const val CORNER_TOP_LEFT = 1
+        const val CORNER_TOP_RIGHT = 2
+        const val CORNER_BOTTOM_RIGHT = 4
+        const val CORNER_BOTTOM_LEFT = 8
+        const val CORNER_ALL = 15
+    }
+
+    // if the origin image has transparent colors
+    // use this to replace the transparent colors
+//    public var bgColor: Int = Color.WHITE
 
     private var cornerRect = RectF()
     private var cornerRadius = 0f
@@ -29,17 +34,22 @@ class UIAvatarView constructor(context: Context, attrs: AttributeSet?, defStyleA
     private var h: Float = 0.0f
     private val path = Path()
     private val bitmapPaint = Paint()
+    //    private val localMatrix = Matrix()
     private val mode = PorterDuffXfermode(PorterDuff.Mode.SRC_IN)
 
     init {
 
         bitmapPaint.isAntiAlias = true
+        bitmapPaint.color = Color.WHITE
 
         val styleAttrs = context.obtainStyledAttributes(attrs, R.styleable.UIImageView)
 
         cornerRadius = styleAttrs.getDimension(R.styleable.UIImageView_cornerRadius, 0f)
 
-        roundedCorners = styleAttrs.getInt(R.styleable.UIImageView_roundedCorners, CORNER_ALL)
+        roundedCorners = styleAttrs.getInt(
+            R.styleable.UIImageView_roundedCorners,
+            CORNER_ALL
+        )
 
 //        clipToOutline = styleAttrs.getBoolean(R.styleable.UIImageView_clipToOutline, false)
 //        clipRadius = styleAttrs.getDimension(R.styleable.UIImageView_clipRadius, 0.0f)
@@ -78,6 +88,11 @@ class UIAvatarView constructor(context: Context, attrs: AttributeSet?, defStyleA
                 canvasSrc = Canvas(bitmapSrc!!)
             }
 
+            // reset bitmap
+            resetBitmap(bitmapSrc!!, Color.TRANSPARENT)
+//            bitmapPaint.color = bgColor
+//            canvasSrc?.drawRect(0f, 0f, w, h, bitmapPaint)
+//            bitmapPaint.reset()
             super.onDraw(canvasSrc)
 
             // dest
@@ -89,7 +104,11 @@ class UIAvatarView constructor(context: Context, attrs: AttributeSet?, defStyleA
 
             canvasDest?.drawPath(path, bitmapPaint)
 
-            val sc = canvas.saveLayer(0f, 0f, w, h, null, Canvas.ALL_SAVE_FLAG)
+            val sc = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                canvas.saveLayer(0f, 0f, w, h, null)
+            } else {
+                canvas.saveLayer(0f, 0f, w, h, null, Canvas.ALL_SAVE_FLAG)
+            }
 
             canvas.drawBitmap(bitmapDest!!, 0f, 0f, bitmapPaint)
             bitmapPaint.xfermode = mode
@@ -97,8 +116,8 @@ class UIAvatarView constructor(context: Context, attrs: AttributeSet?, defStyleA
             bitmapPaint.xfermode = null
             bitmapPaint.reset()
             canvas.restoreToCount(sc)
-        }
-        else {
+
+        } else {
             super.onDraw(canvas)
         }
     }
@@ -107,6 +126,17 @@ class UIAvatarView constructor(context: Context, attrs: AttributeSet?, defStyleA
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
         w = measuredWidth.toFloat()
         h = measuredHeight.toFloat()
+    }
+
+    private fun resetBitmap(src: Bitmap, color: Int) {
+        val width = src.width
+        val height = src.height
+        val pixels = IntArray(width * height)
+        src.getPixels(pixels, 0, width, 0, 0, width, height)
+        for (i in 0 until width * height) {
+            pixels[i] = color
+        }
+        src.setPixels(pixels, 0, width, 0, 0, width, height)
     }
 
 //    private fun bitmapShader(): BitmapShader {
